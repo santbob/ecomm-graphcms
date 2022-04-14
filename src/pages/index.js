@@ -5,11 +5,16 @@ import Layout from '@components/Layout';
 import Container from '@components/Container';
 import Button from '@components/Button';
 
-import products from '@data/products';
-
 import styles from '@styles/Page.module.scss'
 
-export default function Home() {
+import {
+  ApolloClient,
+  InMemoryCache,
+  gql
+} from "@apollo/client";
+
+export default function Home({ home, products }) {
+  const { heroTitle, heroText, heroBackground, heroLink } = home;
   return (
     <Layout>
       <Head>
@@ -24,10 +29,10 @@ export default function Home() {
           <Link href="#">
             <a>
               <div className={styles.heroContent}>
-                <h2>Prepare for liftoff.</h2>
-                <p>Apparel that&apos;s out of this world!</p>
+                <h2>{heroTitle}</h2>
+                <p>{heroText}</p>
               </div>
-              <img className={styles.heroImage} src="/images/space-jelly-gear-banner.jpg" alt="" />
+              <img className={styles.heroImage} src={heroBackground.url} alt="" width={heroBackground.width} height={heroBackground.height} />
             </a>
           </Link>
         </div>
@@ -37,17 +42,17 @@ export default function Home() {
         <ul className={styles.products}>
           {products.slice(0, 4).map(product => {
             return (
-              <li key={product.id}>
-                <Link href="#">
+              <li key={product.slug}>
+                <Link href={`/products/${product.slug}`}>
                   <a>
                     <div className={styles.productImage}>
-                      <img width="500" height="500" src={product.image} alt="" />
+                      <img width={product.image.width} height={product.image.height} src={product.image.url} alt="" />
                     </div>
                     <h3 className={styles.productTitle}>
-                      { product.name }
+                      {product.name}
                     </h3>
                     <p className={styles.productPrice}>
-                      ${ product.price }
+                      ${product.price}
                     </p>
                   </a>
                 </Link>
@@ -63,4 +68,40 @@ export default function Home() {
       </Container>
     </Layout>
   )
+}
+
+export async function getStaticProps() {
+
+  const client = new ApolloClient({
+    uri: 'https://api-us-west-2.graphcms.com/v2/cl1wywy4e0njk01yx0lf5ebto/master',
+    cache: new InMemoryCache()
+  });
+
+  const { data } = await client.query({
+    query: gql`
+      query PageHome {
+        page(where: {slug: "home"}) {
+          id
+          name
+          heroText
+          heroTitle
+          heroLink
+          heroBackground
+        }
+        products(first: 4) {
+          id
+          name
+          slug
+          price
+          image
+        }
+      }`
+  });
+  console.log("result ", data.page);
+  return {
+    props: {
+      home: data.page,
+      products: data.products
+    }, // will be passed to the page component as props
+  }
 }
