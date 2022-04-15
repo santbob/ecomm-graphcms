@@ -1,5 +1,5 @@
 import Head from 'next/head'
-
+import Image from 'next/image';
 import Layout from '@components/Layout';
 import Header from '@components/Header';
 import Container from '@components/Container';
@@ -30,7 +30,7 @@ export default function Product({ product }) {
       <Container>
         <div className={styles.productWrapper}>
           <div className={styles.productImage}>
-            <img width={product.image.width} height={product.image.height} src={product.image.url} alt="" />
+            <Image width={product.image.width} height={product.image.height} src={product.image.url} alt="" />
           </div>
           <div className={styles.productContent}>
             <h1>{product.name}</h1>
@@ -41,14 +41,20 @@ export default function Product({ product }) {
               ${product.price}
             </p>
             <p className={styles.productBuy}>
-              <Button>
+              <Button
+                className="snipcart-add-item"
+                data-item-id={product.id}
+                data-item-price={product.price}
+                data-item-url={`/products/${product.slug}`}
+                data-item-image={product.image.url}
+                data-item-name={product.name}>
                 Add to Cart
               </Button>
             </p>
           </div>
         </div>
       </Container>
-    </Layout>
+    </Layout >
   )
 }
 

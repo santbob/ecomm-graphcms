@@ -7,7 +7,13 @@ import Button from '@components/Button';
 
 import styles from '@styles/Page.module.scss'
 
-export default function Stores() {
+import {
+  ApolloClient,
+  InMemoryCache,
+  gql
+} from "@apollo/client";
+
+export default function Stores({ storeLocations }) {
   return (
     <Layout>
       <Head>
@@ -22,26 +28,28 @@ export default function Stores() {
 
           <div className={styles.storesLocations}>
             <ul className={styles.locations}>
-              <li>
-                <p className={styles.locationName}>
-                  Name
-                </p>
-                <address>
-                  Address
-                </address>
-                <p>
-                  1234567890
-                </p>
-                <p className={styles.locationDiscovery}>
-                  <button>
-                    View on Map
-                  </button>
-                  <a href="https://www.google.com/maps/" target="_blank" rel="noreferrer">
-                    Get Directions
-                    <FaExternalLinkAlt />
-                  </a>
-                </p>
-              </li>
+              {storeLocations.map(store => (
+                <li key={store.id}>
+                  <p className={styles.locationName}>
+                    {store.name}
+                  </p>
+                  <address>
+                    {store.address}
+                  </address>
+                  <p>
+                    {store.phoneNumber}
+                  </p>
+                  <p className={styles.locationDiscovery}>
+                    <button>
+                      View on Map
+                    </button>
+                    <a href={`https://www.google.com/maps/dir//${store.location.latitude},${store.location.longitude}/@${store.location.latitude},${store.location.longitude},17z/`} target="_blank" rel="noreferrer">
+                      Get Directions
+                      <FaExternalLinkAlt />
+                    </a>
+                  </p>
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -56,4 +64,33 @@ export default function Stores() {
       </Container>
     </Layout>
   )
+}
+export async function getStaticProps() {
+
+  const client = new ApolloClient({
+    uri: 'https://api-us-west-2.graphcms.com/v2/cl1wywy4e0njk01yx0lf5ebto/master',
+    cache: new InMemoryCache()
+  });
+
+  const { data } = await client.query({
+    query: gql`
+      query PageStores {
+        storeLocations {
+          id
+          name
+          phoneNumber
+          address
+          location {
+            latitude
+            longitude
+          }
+        }
+      }`
+  });
+  console.log("result ", data.storeLocations);
+  return {
+    props: {
+      storeLocations: data.storeLocations
+    },
+  }
 }

@@ -1,6 +1,6 @@
 import Head from 'next/head'
 import Link from 'next/link';
-
+import Image from 'next/image';
 import Layout from '@components/Layout';
 import Container from '@components/Container';
 import Button from '@components/Button';
@@ -26,13 +26,13 @@ export default function Home({ home, products }) {
         <h1 className="sr-only">Space Jelly Gear</h1>
 
         <div className={styles.hero}>
-          <Link href="#">
+          <Link href={heroLink}>
             <a>
               <div className={styles.heroContent}>
                 <h2>{heroTitle}</h2>
                 <p>{heroText}</p>
               </div>
-              <img className={styles.heroImage} src={heroBackground.url} alt="" width={heroBackground.width} height={heroBackground.height} />
+              <Image className={styles.heroImage} src={heroBackground.url} alt="" width={heroBackground.width} height={heroBackground.height} />
             </a>
           </Link>
         </div>
@@ -46,7 +46,7 @@ export default function Home({ home, products }) {
                 <Link href={`/products/${product.slug}`}>
                   <a>
                     <div className={styles.productImage}>
-                      <img width={product.image.width} height={product.image.height} src={product.image.url} alt="" />
+                      <Image width={product.image.width} height={product.image.height} src={product.image.url} alt="" />
                     </div>
                     <h3 className={styles.productTitle}>
                       {product.name}
@@ -57,7 +57,12 @@ export default function Home({ home, products }) {
                   </a>
                 </Link>
                 <p>
-                  <Button>
+                  <Button className="snipcart-add-item"
+                    data-item-id={product.id}
+                    data-item-price={product.price}
+                    data-item-url={`/products/${product.slug}`}
+                    data-item-image={product.image.url}
+                    data-item-name={product.name}>
                     Add to Cart
                   </Button>
                 </p>
@@ -88,12 +93,12 @@ export async function getStaticProps() {
           heroLink
           heroBackground
         }
-        products(first: 4) {
+        products(where: {categories_some: {slug: "featured"}}) {
           id
-          name
-          slug
-          price
           image
+          name
+          price
+          slug
         }
       }`
   });
