@@ -28,7 +28,7 @@ const Header = () => {
           </li>
           <li>
             <Link href="/stores">
-              <a>Store Locations</a>
+              <a>Find a Store</a>
             </Link>
           </li>
         </ul>
